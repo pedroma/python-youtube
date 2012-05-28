@@ -1,4 +1,28 @@
+"""
+This modules create Python bindings for Youtube's API v2 using OAuth2.
+Here is an example of how to use this module.
+
+>>> client_id = "my-client-id" # get this from google's api console
+>>> client_secret = "my-client-secret" # api console
+>>> redirect_uri = "http://localhost/" # this has to be a registered URL in google's api console
+>>> yt = YoutubeAPI(client_id, redirect_uri, client_secret)
+>>> yt.get_auth_url() # send user to this url
+>>> code = "code-provided-by-user"
+>>> yt.finish_authorization(code)
+
+At this point you have an authenticated instance of YoutubeAPI.
+If you already have a credentials dictionary you can do:
+
+>>> client_id = "my-client-id"
+>>> client_secret = "my-client-secret"
+>>> redirect_uri = "http://localhost/"
+>>> credentials = {u'access_token': u'token-here', u'token_type': u'Bearer', u'expires_in': 3600, u'refresh_token': u'token-here'}
+>>> yt = YoutubeAPI(client_id, redirect_uri, client_secret, credentials)
+
+"""
+
 import httplib, urllib, json, feedparser
+from  models import YTUser, YTVideo
 
 class YoutubeAPI(object):
 
@@ -64,7 +88,28 @@ class YoutubeAPI(object):
 
     def get_user_subscriptions(self):
         """
-        This method assumes that the authorization process was complete and this class has a valid credentials dictionary
+        This method assumes that the authorization process was complete and this class has a valid credentials dictionary.
+        Return users subscriptions (not the actual subscription feed)
         """
         url = "%s/feeds/api/users/default/subscriptions?v=2&access_token=%s" % ( self.API_BASE, self.credentials['access_token'] )
+        return feedparser.parse(url)
+
+
+    def get_user_subscription_feed(self):
+        """
+        Return the user's subscription feed (videos)
+        """
+        url = "%s/feeds/api/users/default/newsubscriptionvideos?v=2&access_token=%s" % ( self.API_BASE, self.credentials['access_token'] )
+        feed = feedparser.parse(url)
+        if len(feed['items']):
+            return [YTVideo(item) for item in feed['items']]
+
+    def get_user_info(self, username="default"):
+        """
+        Returns a YTUser object with the user information. If no username is defined returns info for authenticated user
+        """
+        url = "%s/feeds/api/users/default?v=2&access_token=%s" % ( self.API_BASE, self.credentials['access_token'] )
+        feed = feedparser.parse(url)
+        if len(feed['items']):
+            return YTUser(feed['items'][0])
 
