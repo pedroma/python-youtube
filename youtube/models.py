@@ -1,6 +1,24 @@
+from datetime import datetime
+
 class YTUser(object):
 
     def __init__(self, item):
+        try:
+            age = int(item['yt_age'])
+        except:
+            age = 0
+        try:
+            last_access = datetime.strptime(item['yt_statistics']['lastwebaccess'],'%Y-%m-%dT%H:%M:%S.000Z')
+        except:
+            last_access = datetime.now()
+        try:
+            subscribers_count = int(item['yt_statistics']['subscribercount'])
+        except:
+            subscribers_count = 0
+        try:
+            total_uploads_views = int(item['yt_statistics']['totaluploadviews'])
+        except:
+            total_uploads_views = 0
         self.username = item['author']
         self.user_id = item['id']
         self.thumbnail = item['media_thumbnail'][0]['url']
@@ -8,30 +26,52 @@ class YTUser(object):
         self.last_name = item['yt_lastname']
         self.location = item['yt_location']
         self.tags = [t['label'] for t in item['tags'] if t['label'] is not None]
-        self.age = item['yt_age']
+        self.age = age
         self.gender = item['yt_gender']
-        self.last_access = item['yt_statistics']['lastwebaccess']
-        self.subscribers_count = item['yt_statistics']['subscribercount']
-        self.total_uploads_views = item['yt_statistics']['totaluploadviews']
+        self.last_access = last_access
+        self.subscribers_count = subscribers_count
+        self.total_uploads_views = total_uploads_views
 
 
 class YTVideo(object):
     def __init__(self, item):
+        try:
+            num_views = int(item['gd_feedlink'].get('counthint',None))
+            rating_count = item['gd_rating']['numraters']
+        except:
+            num_views = 0
+            rating_count = 0
+        try:
+            rating_avg = float(item['gd_rating']['average'])
+            rating_min = float(item['gd_rating']['min'])
+            rating_max = float(item['gd_rating']['max'])
+        except:
+            rating_avg = 0
+            rating_min = 0
+            rating_max = 0
         self.author_thumbnail = item['media_thumbnail'][0]['url']
-        self.publish_date = item['published_parsed']
+        self.publish_date = datetime(*item['published_parsed'][:6])
         self.author_username = item['author']
         self.tags = [t['label'] for t in item['tags'] if t['label'] is not None]
         self.url = item['content'][0]['src']
-        self.num_views = item['gd_feedlink'].get('counthint',None)
-        self.rating_avg = item['gd_rating']['average']
-        self.rating_min = item['gd_rating']['min']
-        self.rating_max = item['gd_rating']['max']
-        self.rating_count = item['gd_rating']['numraters']
+        self.num_views = num_views
+        self.rating_avg = rating_avg
+        self.rating_min = rating_min
+        self.rating_max = rating_max
+        self.rating_count = rating_count
         self.id = item['id']
         self.video_web_url = item['media_player']['url']
-        self.published = item['published_parsed']
         self.title = item['title']
-        self.duration = item['yt_duration']['seconds']
-        self.n_likes = item['yt_rating']['numlikes']
-        self.n_dislikes = item['yt_rating']['numdislikes']
+        try:
+            self.duration = int(item['yt_duration']['seconds'])
+        except:
+            self.duration = 0
+        try:
+            self.n_likes = int(item['yt_rating']['numlikes'])
+        except:
+            self.n_likes = 0
+        try:
+            self.n_dislikes = int(item['yt_rating']['numdislikes'])
+        except:
+            self.n_dislikes = 0
 
