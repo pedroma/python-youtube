@@ -22,12 +22,12 @@ class YTUser(object):
         self.username = item['author']
         self.user_id = item['id']
         self.thumbnail = item['media_thumbnail'][0]['url']
-        self.first_name = item['yt_firstname']
-        self.last_name = item['yt_lastname']
+        self.first_name = item.get('yt_firstname',item['author'])
+        self.last_name = item.get('yt_lastname','')
         self.location = item['yt_location']
         self.tags = [t['label'] for t in item['tags'] if t['label'] is not None]
         self.age = age
-        self.gender = item['yt_gender']
+        self.gender = item.get('yt_gender','')
         self.last_access = last_access
         self.subscribers_count = subscribers_count
         self.total_uploads_views = total_uploads_views
@@ -36,7 +36,7 @@ class YTUser(object):
 class YTVideo(object):
     def __init__(self, item):
         try:
-            num_views = int(item['gd_feedlink'].get('counthint',None))
+            num_views = int(item['yt_statistics'].get('viewcount',None))
             rating_count = item['gd_rating']['numraters']
         except:
             num_views = 0

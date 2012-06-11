@@ -108,7 +108,7 @@ class YoutubeAPI(object):
         """
         Returns a YTUser object with the user information. If no username is defined returns info for authenticated user
         """
-        url = "%s/feeds/api/users/default?v=2&access_token=%s" % ( self.API_BASE, self.credentials['access_token'] )
+        url = "%s/feeds/api/users/%s?v=2&access_token=%s" % ( self.API_BASE, username, self.credentials['access_token'] )
         feed = feedparser.parse(url)
         if len(feed['items']):
             return YTUser(feed['items'][0])
