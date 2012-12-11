@@ -1,24 +1,13 @@
 from datetime import datetime
+from youtube.utils import clean_int, clean_last_time, clean_float
 
 class YTUser(object):
 
     def __init__(self, item):
-        try:
-            age = int(item['yt_age'])
-        except:
-            age = 0
-        try:
-            last_access = datetime.strptime(item['yt_statistics']['lastwebaccess'],'%Y-%m-%dT%H:%M:%S.000Z')
-        except:
-            last_access = datetime.now()
-        try:
-            subscribers_count = int(item['yt_statistics']['subscribercount'])
-        except:
-            subscribers_count = 0
-        try:
-            total_uploads_views = int(item['yt_statistics']['totaluploadviews'])
-        except:
-            total_uploads_views = 0
+        age = clean_int(item['yt_age'])
+        last_access = clean_last_time(item['yt_statistics']['lastwebaccess'])
+        subscribers_count = clean_int(item['yt_statistics']['subscribercount'])
+        total_uploads_views = clean_int(item['yt_statistics']['totaluploadviews'])
         self.username = item['author']
         self.user_id = item['id']
         self.thumbnail = item['media_thumbnail'][0]['url']
@@ -35,20 +24,11 @@ class YTUser(object):
 
 class YTVideo(object):
     def __init__(self, item):
-        try:
-            num_views = int(item['yt_statistics'].get('viewcount',None))
-            rating_count = item['gd_rating']['numraters']
-        except:
-            num_views = 0
-            rating_count = 0
-        try:
-            rating_avg = float(item['gd_rating']['average'])
-            rating_min = float(item['gd_rating']['min'])
-            rating_max = float(item['gd_rating']['max'])
-        except:
-            rating_avg = 0
-            rating_min = 0
-            rating_max = 0
+        num_views = clean_int(item['yt_statistics'].get('viewcount',None))
+        rating_count = clean_int(item['gd_rating']['numraters'])
+        rating_avg = clean_float(item['gd_rating']['average'])
+        rating_min = clean_float(item['gd_rating']['min'])
+        rating_max = clean_float(item['gd_rating']['max'])
         self.author_thumbnail = item['media_thumbnail'][0]['url']
         self.publish_date = datetime(*item['published_parsed'][:6])
         self.author_username = item['author']
@@ -62,16 +42,7 @@ class YTVideo(object):
         self.id = item['id']
         self.video_web_url = item['media_player']['url']
         self.title = item['title']
-        try:
-            self.duration = int(item['yt_duration']['seconds'])
-        except:
-            self.duration = 0
-        try:
-            self.n_likes = int(item['yt_rating']['numlikes'])
-        except:
-            self.n_likes = 0
-        try:
-            self.n_dislikes = int(item['yt_rating']['numdislikes'])
-        except:
-            self.n_dislikes = 0
+        self.duration = clean_int(item['yt_duration']['seconds'])
+        self.n_likes = clean_int(item['yt_rating']['numlikes'])
+        self.n_dislikes = clean_int(item['yt_rating']['numdislikes'])
 
